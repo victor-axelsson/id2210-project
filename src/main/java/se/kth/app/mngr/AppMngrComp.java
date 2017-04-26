@@ -19,6 +19,8 @@ package se.kth.app.mngr;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import se.kth.app.broadcast.BasicBroadcast;
+import se.kth.app.broadcast.BestEffortBroadcast;
 import se.kth.croupier.util.NoView;
 import se.kth.app.AppComp;
 import se.sics.kompics.Channel;
@@ -54,6 +56,7 @@ public class AppMngrComp extends ComponentDefinition {
   private OverlayId croupierId;
   //***************************INTERNAL_STATE*********************************
   private Component appComp;
+  private Component beb;
   //******************************AUX_STATE***********************************
   private OMngrCroupier.ConnectRequest pendingCroupierConnReq;
   //**************************************************************************
@@ -95,6 +98,10 @@ public class AppMngrComp extends ComponentDefinition {
     connect(appComp.getNegative(Timer.class), extPorts.timerPort, Channel.TWO_WAY);
     connect(appComp.getNegative(Network.class), extPorts.networkPort, Channel.TWO_WAY);
     connect(appComp.getNegative(CroupierPort.class), extPorts.croupierPort, Channel.TWO_WAY);
+
+
+    beb = create(BasicBroadcast.class, new BasicBroadcast.Init(selfAdr));
+    connect(beb.getPositive(BestEffortBroadcast.class), appComp.getNegative(BestEffortBroadcast.class), Channel.TWO_WAY);
   }
 
   public static class Init extends se.sics.kompics.Init<AppMngrComp> {

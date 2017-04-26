@@ -20,6 +20,8 @@ package se.kth.app;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import se.kth.app.broadcast.BEB_Deliver;
+import se.kth.app.broadcast.BestEffortBroadcast;
 import se.kth.croupier.util.CroupierHelper;
 import se.kth.app.test.Ping;
 import se.kth.app.test.Pong;
@@ -52,6 +54,7 @@ public class AppComp extends ComponentDefinition {
   Positive<Timer> timerPort = requires(Timer.class);
   Positive<Network> networkPort = requires(Network.class);
   Positive<CroupierPort> croupierPort = requires(CroupierPort.class);
+  final Positive<BestEffortBroadcast> beb = requires(BestEffortBroadcast.class);
   //**************************************************************************
   private KAddress selfAdr;
 
@@ -64,12 +67,20 @@ public class AppComp extends ComponentDefinition {
     subscribe(handleCroupierSample, croupierPort);
     subscribe(handlePing, networkPort);
     subscribe(handlePong, networkPort);
+    subscribe(beb_deliverHandler, beb);
   }
 
   Handler handleStart = new Handler<Start>() {
     @Override
     public void handle(Start event) {
       LOG.info("{}starting...", logPrefix);
+    }
+  };
+
+  Handler<BEB_Deliver> beb_deliverHandler = new Handler<BEB_Deliver>() {
+    @Override
+    public void handle(BEB_Deliver beb_deliver) {
+      //Dunno
     }
   };
 
@@ -93,7 +104,7 @@ public class AppComp extends ComponentDefinition {
 
       @Override
       public void handle(Ping content, KContentMsg<?, ?, Ping> container) {
-        LOG.info("{}received ping from:{}", logPrefix, container.getHeader().getSource());
+        //LOG.info("{}received ping from:{}", logPrefix, container.getHeader().getSource());
         trigger(container.answer(new Pong()), networkPort);
       }
     };
@@ -103,7 +114,7 @@ public class AppComp extends ComponentDefinition {
 
       @Override
       public void handle(Pong content, KContentMsg<?, KHeader<?>, Pong> container) {
-        LOG.info("{}received pong from:{}", logPrefix, container.getHeader().getSource());
+        //LOG.info("{}received pong from:{}", logPrefix, container.getHeader().getSource());
       }
     };
 
