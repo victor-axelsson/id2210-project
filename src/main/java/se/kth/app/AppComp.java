@@ -17,15 +17,14 @@
  */
 package se.kth.app;
 
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import se.kth.app.broadcast.BEB_Broadcast;
-import se.kth.app.broadcast.BEB_Deliver;
-import se.kth.app.broadcast.BestEffortBroadcast;
-import se.kth.app.link.PL_Send;
+import se.kth.app.broadcast.BEB.BEB_Broadcast;
+import se.kth.app.broadcast.BEB.BEB_Deliver;
+import se.kth.app.broadcast.BEB.BestEffortBroadcast;
+import se.kth.app.broadcast.GBEB.GBEB_Broadcast;
+import se.kth.app.broadcast.GBEB.GossipingBestEffortBroadcast;
 import se.kth.croupier.util.CroupierHelper;
 import se.kth.app.test.Ping;
 import se.kth.app.test.Pong;
@@ -58,7 +57,8 @@ public class AppComp extends ComponentDefinition {
   Positive<Timer> timerPort = requires(Timer.class);
   Positive<Network> networkPort = requires(Network.class);
   Positive<CroupierPort> croupierPort = requires(CroupierPort.class);
-  final Positive<BestEffortBroadcast> beb = requires(BestEffortBroadcast.class);
+  Positive<BestEffortBroadcast> beb = requires(BestEffortBroadcast.class);
+  Positive<GossipingBestEffortBroadcast> gbeb = requires(GossipingBestEffortBroadcast.class);
   //**************************************************************************
   private KAddress selfAdr;
 
@@ -103,7 +103,7 @@ public class AppComp extends ComponentDefinition {
       }
 
       if(sample.size() > 3){
-        trigger(new BEB_Broadcast(new Ping(), sample), beb);
+        trigger(new GBEB_Broadcast(), gbeb);
       }
 
     }

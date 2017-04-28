@@ -19,8 +19,10 @@ package se.kth.app.mngr;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import se.kth.app.broadcast.BasicBroadcast;
-import se.kth.app.broadcast.BestEffortBroadcast;
+import se.kth.app.broadcast.BEB.BasicBroadcast;
+import se.kth.app.broadcast.BEB.BestEffortBroadcast;
+import se.kth.app.broadcast.GBEB.GossipingBEBComponent;
+import se.kth.app.broadcast.GBEB.GossipingBestEffortBroadcast;
 import se.kth.app.link.PerfectLink;
 import se.kth.app.link.PerfectLinkComponent;
 import se.kth.croupier.util.NoView;
@@ -36,6 +38,9 @@ import se.sics.ktoolbox.util.identifiable.overlay.OverlayId;
 import se.sics.ktoolbox.util.network.KAddress;
 import se.sics.ktoolbox.util.overlays.view.OverlayViewUpdate;
 import se.sics.ktoolbox.util.overlays.view.OverlayViewUpdatePort;
+import sun.nio.ch.ChannelInputStream;
+import sun.nio.ch.Net;
+import sun.nio.cs.ext.COMPOUND_TEXT;
 
 /**
  * @author Alex Ormenisan <aaor@kth.se>
@@ -54,9 +59,11 @@ public class AppMngrComp extends ComponentDefinition {
   private Component appComp;
   private Component beb;
   private Component pLink;
+  private Component gbeb;
   //******************************AUX_STATE***********************************
   private OMngrCroupier.ConnectRequest pendingCroupierConnReq;
   //**************************************************************************
+
 
   public AppMngrComp(Init init) {
     selfAdr = init.selfAdr;
@@ -65,6 +72,12 @@ public class AppMngrComp extends ComponentDefinition {
 
     extPorts = init.extPorts;
     croupierId = init.croupierOId;
+
+    beb = create(BasicBroadcast.class, new BasicBroadcast.Init(selfAdr));
+    pLink = create(PerfectLinkComponent.class, se.sics.kompics.Init.NONE);
+    gbeb = create(GossipingBEBComponent.class, new GossipingBEBComponent.Init(selfAdr));
+
+    connect(pLink.getNegative(Network.class),extPorts.networkPort, Channel.TWO_WAY);
 
     subscribe(handleStart, control);
     subscribe(handleCroupierConnected, omngrPort);
@@ -97,12 +110,14 @@ public class AppMngrComp extends ComponentDefinition {
     connect(appComp.getNegative(CroupierPort.class), extPorts.croupierPort, Channel.TWO_WAY);
 
 
-    beb = create(BasicBroadcast.class, new BasicBroadcast.Init(selfAdr));
+    //COnnect beb
     connect(beb.getPositive(BestEffortBroadcast.class), appComp.getNegative(BestEffortBroadcast.class), Channel.TWO_WAY);
-
-    pLink = create(PerfectLinkComponent.class, se.sics.kompics.Init.NONE);
-    connect(pLink.getNegative(Network.class),extPorts.networkPort, Channel.TWO_WAY);
     connect(beb.getNegative(PerfectLink.class), pLink.getPositive(PerfectLink.class), Channel.TWO_WAY);
+
+    //Connect gbeb
+    connect(gbeb.getPositive(GossipingBestEffortBroadcast.class), appComp.getNegative(GossipingBestEffortBroadcast.class), Channel.TWO_WAY);
+    connect(gbeb.getNegative(PerfectLink.class), pLink.getPositive(PerfectLink.class), Channel.TWO_WAY);
+    connect(gbeb.getNegative(CroupierPort.class), extPorts.croupierPort, Channel.TWO_WAY);
 
   }
 
