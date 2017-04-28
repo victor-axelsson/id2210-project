@@ -30,7 +30,6 @@ public class EagerReliableBroadcast extends ComponentDefinition {
     Handler<RB_Broadcast> rb_broadcastHandler = new Handler<RB_Broadcast>() {
         @Override
         public void handle(RB_Broadcast rb_broadcast) {
-            System.out.println("RB Broadcast: " + selfAdr);
             trigger(new GBEB_Broadcast(new Data(selfAdr, rb_broadcast.message)), beb);
         }
     };
@@ -40,7 +39,6 @@ public class EagerReliableBroadcast extends ComponentDefinition {
         @Override
         public void handle(Data data, GBEB_Deliver gbeb_deliver) {
             if(!delivered.contains(data)){
-                System.out.println("RB Delivering: " + selfAdr);
                 delivered.add(data);
                 trigger(new RB_Deliver(data.getP(), data.getM()), rb);
                 trigger(new GBEB_Broadcast(data), beb);

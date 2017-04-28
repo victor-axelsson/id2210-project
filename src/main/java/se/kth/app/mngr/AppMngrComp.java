@@ -21,6 +21,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import se.kth.app.broadcast.BEB.BasicBroadcast;
 import se.kth.app.broadcast.BEB.BestEffortBroadcast;
+import se.kth.app.broadcast.CB.CausalOrderReliableBroadcast;
+import se.kth.app.broadcast.CB.NoWaitingCausalBroadcast;
 import se.kth.app.broadcast.GBEB.GossipingBEBComponent;
 import se.kth.app.broadcast.GBEB.GossipingBestEffortBroadcast;
 import se.kth.app.broadcast.RB.EagerReliableBroadcast;
@@ -63,6 +65,7 @@ public class AppMngrComp extends ComponentDefinition {
   private Component pLink;
   private Component gbeb;
   private Component rb;
+  private Component cb;
   //******************************AUX_STATE***********************************
   private OMngrCroupier.ConnectRequest pendingCroupierConnReq;
   //**************************************************************************
@@ -80,6 +83,7 @@ public class AppMngrComp extends ComponentDefinition {
     pLink = create(PerfectLinkComponent.class, se.sics.kompics.Init.NONE);
     gbeb = create(GossipingBEBComponent.class, new GossipingBEBComponent.Init(selfAdr));
     rb = create(EagerReliableBroadcast.class, new EagerReliableBroadcast.Init(selfAdr));
+    cb = create(NoWaitingCausalBroadcast.class, new NoWaitingCausalBroadcast.Init(selfAdr));
 
     connect(pLink.getNegative(Network.class),extPorts.networkPort, Channel.TWO_WAY);
 
@@ -123,11 +127,13 @@ public class AppMngrComp extends ComponentDefinition {
     connect(gbeb.getNegative(PerfectLink.class), pLink.getPositive(PerfectLink.class), Channel.TWO_WAY);
     connect(gbeb.getNegative(CroupierPort.class), extPorts.croupierPort, Channel.TWO_WAY);
 
-
+    //Reliable broadcast
     connect(rb.getPositive(ReliableBroadcast.class), appComp.getNegative(ReliableBroadcast.class), Channel.TWO_WAY);
     connect(rb.getNegative(GossipingBestEffortBroadcast.class), gbeb.getPositive(GossipingBestEffortBroadcast.class), Channel.TWO_WAY);
 
-
+    //Causal broadcast
+    connect(cb.getPositive(CausalOrderReliableBroadcast.class), appComp.getNegative(CausalOrderReliableBroadcast.class), Channel.TWO_WAY);
+    connect(cb.getNegative(ReliableBroadcast.class), rb.getPositive(ReliableBroadcast.class), Channel.TWO_WAY);
 
   }
 

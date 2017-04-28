@@ -22,6 +22,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import se.kth.app.broadcast.BEB.BEB_Deliver;
 import se.kth.app.broadcast.BEB.BestEffortBroadcast;
+import se.kth.app.broadcast.CB.CB_Broadcast;
+import se.kth.app.broadcast.CB.CausalOrderReliableBroadcast;
 import se.kth.app.broadcast.GBEB.GBEB_Deliver;
 import se.kth.app.broadcast.GBEB.GossipingBestEffortBroadcast;
 import se.kth.app.broadcast.RB.RB_Broadcast;
@@ -61,6 +63,7 @@ public class AppComp extends ComponentDefinition {
   Positive<BestEffortBroadcast> beb = requires(BestEffortBroadcast.class);
   Positive<GossipingBestEffortBroadcast> gbeb = requires(GossipingBestEffortBroadcast.class);
   Positive<ReliableBroadcast> rb = requires(ReliableBroadcast.class);
+  Positive<CausalOrderReliableBroadcast> cb = requires(CausalOrderReliableBroadcast.class);
   //**************************************************************************
   private KAddress selfAdr;
 
@@ -109,8 +112,10 @@ public class AppComp extends ComponentDefinition {
         //trigger(new GBEB_Broadcast(m), gbeb);
         //trigger(new GBEB_Broadcast(new Ping()), gbeb);
         //trigger(new RB_Broadcast(message), rb);
+        // trigger(new RB_Broadcast(new Ping()), rb);
 
-        trigger(new RB_Broadcast(new Ping()), rb);
+        trigger(new CB_Broadcast(), cb);
+
       }
 
     }
