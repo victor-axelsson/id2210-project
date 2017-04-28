@@ -17,8 +17,10 @@
  */
 package se.kth.app.test;
 
+import se.sics.kompics.KompicsEvent;
+
 /**
  * @author Alex Ormenisan <aaor@kth.se>
  */
-public class Ping {
+public class Ping implements KompicsEvent {
 }

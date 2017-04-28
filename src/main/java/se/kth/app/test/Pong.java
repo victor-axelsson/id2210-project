@@ -17,10 +17,12 @@
  */
 package se.kth.app.test;
 
+import se.sics.kompics.KompicsEvent;
+
 /**
  *
  * @author Alex Ormenisan <aaor@kth.se>
  */
-public class Pong {
+public class Pong implements KompicsEvent {
     
 }

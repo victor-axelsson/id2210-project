@@ -30,6 +30,7 @@ public class BasicBroadcast extends ComponentDefinition{
     protected final Handler<BEB_Broadcast> broadcastHandler = new Handler<BEB_Broadcast>() {
         @Override
         public void handle(BEB_Broadcast beb_broadcast) {
+            System.out.println("Doing boradcast");
             for(KAddress adr : beb_broadcast.procs){
                 trigger(new PL_Send(selfAdr, adr, beb_broadcast), pLink);
             }
@@ -39,7 +40,7 @@ public class BasicBroadcast extends ComponentDefinition{
     protected final ClassMatchedHandler<BEB_Broadcast, PL_Deliver> plDeliverHandler = new ClassMatchedHandler<BEB_Broadcast, PL_Deliver>() {
         @Override
         public void handle(BEB_Broadcast beb_broadcast, PL_Deliver pl_deliver) {
-
+            System.out.println("pLink deliver");
         }
     };
 

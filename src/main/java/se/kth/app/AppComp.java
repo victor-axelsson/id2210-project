@@ -17,11 +17,15 @@
  */
 package se.kth.app;
 
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import se.kth.app.broadcast.BEB_Broadcast;
 import se.kth.app.broadcast.BEB_Deliver;
 import se.kth.app.broadcast.BestEffortBroadcast;
+import se.kth.app.link.PL_Send;
 import se.kth.croupier.util.CroupierHelper;
 import se.kth.app.test.Ping;
 import se.kth.app.test.Pong;
@@ -81,6 +85,7 @@ public class AppComp extends ComponentDefinition {
     @Override
     public void handle(BEB_Deliver beb_deliver) {
       //Dunno
+      System.out.println("Beb deliver in AppComp");
     }
   };
 
@@ -96,6 +101,11 @@ public class AppComp extends ComponentDefinition {
         KContentMsg msg = new BasicContentMsg(header, new Ping());
         trigger(msg, networkPort);
       }
+
+      if(sample.size() > 3){
+        trigger(new BEB_Broadcast(new Ping(), sample), beb);
+      }
+
     }
   };
 

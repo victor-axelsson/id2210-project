@@ -21,15 +21,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import se.kth.app.broadcast.BasicBroadcast;
 import se.kth.app.broadcast.BestEffortBroadcast;
+import se.kth.app.link.PerfectLink;
+import se.kth.app.link.PerfectLinkComponent;
 import se.kth.croupier.util.NoView;
 import se.kth.app.AppComp;
-import se.sics.kompics.Channel;
-import se.sics.kompics.Component;
-import se.sics.kompics.ComponentDefinition;
-import se.sics.kompics.Handler;
-import se.sics.kompics.Negative;
-import se.sics.kompics.Positive;
-import se.sics.kompics.Start;
+import se.sics.kompics.*;
 import se.sics.kompics.network.Network;
 import se.sics.kompics.timer.Timer;
 import se.sics.ktoolbox.croupier.CroupierPort;
@@ -57,6 +53,7 @@ public class AppMngrComp extends ComponentDefinition {
   //***************************INTERNAL_STATE*********************************
   private Component appComp;
   private Component beb;
+  private Component pLink;
   //******************************AUX_STATE***********************************
   private OMngrCroupier.ConnectRequest pendingCroupierConnReq;
   //**************************************************************************
@@ -102,6 +99,11 @@ public class AppMngrComp extends ComponentDefinition {
 
     beb = create(BasicBroadcast.class, new BasicBroadcast.Init(selfAdr));
     connect(beb.getPositive(BestEffortBroadcast.class), appComp.getNegative(BestEffortBroadcast.class), Channel.TWO_WAY);
+
+    pLink = create(PerfectLinkComponent.class, se.sics.kompics.Init.NONE);
+    connect(pLink.getNegative(Network.class),extPorts.networkPort, Channel.TWO_WAY);
+    connect(beb.getNegative(PerfectLink.class), pLink.getPositive(PerfectLink.class), Channel.TWO_WAY);
+
   }
 
   public static class Init extends se.sics.kompics.Init<AppMngrComp> {
