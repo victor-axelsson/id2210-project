@@ -1,6 +1,6 @@
 package se.kth.app.broadcast.CB;
 
-import se.kth.app.broadcast.RB.Data;
+import se.kth.app.broadcast.RB.RB_Broadcast;
 import se.kth.app.broadcast.RB.RB_Deliver;
 import se.kth.app.broadcast.RB.ReliableBroadcast;
 import se.sics.kompics.*;
@@ -19,8 +19,8 @@ public class NoWaitingCausalBroadcast extends ComponentDefinition {
     Positive<ReliableBroadcast> rb = requires(ReliableBroadcast.class);
 
     private KAddress selfAdr;
-    Set<Data> delivered;
-    List<Data> past;
+    Set<CBData> delivered;
+    List<CBData> past;
 
     public NoWaitingCausalBroadcast(Init init){
         this.selfAdr = init.selfAdr;
@@ -35,17 +35,36 @@ public class NoWaitingCausalBroadcast extends ComponentDefinition {
     protected final Handler<CB_Broadcast> cb_broadcastHandler = new Handler<CB_Broadcast>() {
         @Override
         public void handle(CB_Broadcast cb_broadcast) {
-            System.out.println("CB broadcasting");
+            CBData m = new CBData(past, cb_broadcast.m);
+            trigger(new RB_Broadcast(m), rb);
+            past.add(m);
         }
     };
 
-    protected final ClassMatchedHandler<Data, RB_Deliver> dataRB_deliverClassMatchedHandler = new ClassMatchedHandler<Data, RB_Deliver>() {
+    protected final ClassMatchedHandler<CBData, RB_Deliver> dataRB_deliverClassMatchedHandler = new ClassMatchedHandler<CBData, RB_Deliver>() {
         @Override
-        public void handle(Data data, RB_Deliver rb_deliver) {
-            System.out.println("CB delivering");
+        public void handle(CBData data, RB_Deliver rb_deliver) {
+            if(!delivered.contains(data)){
+                for(CBData n: data.getPast()){
+                    if(!delivered.contains(n)){
+                        trigger(new CB_Deliver(n), cb);
+                        delivered.add(n);
+
+                        if(!past.contains(n)){
+                            past.add(n);
+                        }
+                    }
+
+                    trigger(new CB_Deliver(n), cb);
+                    delivered.add(n);
+
+                    if(!past.contains(data)){
+                        past.add(data);
+                    }
+                }
+            }
         }
     };
-
 
     public static class Init extends se.sics.kompics.Init<NoWaitingCausalBroadcast>{
 

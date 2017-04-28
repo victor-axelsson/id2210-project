@@ -26,7 +26,6 @@ import se.kth.app.broadcast.CB.CB_Broadcast;
 import se.kth.app.broadcast.CB.CausalOrderReliableBroadcast;
 import se.kth.app.broadcast.GBEB.GBEB_Deliver;
 import se.kth.app.broadcast.GBEB.GossipingBestEffortBroadcast;
-import se.kth.app.broadcast.RB.RB_Broadcast;
 import se.kth.app.broadcast.RB.ReliableBroadcast;
 import se.kth.croupier.util.CroupierHelper;
 import se.kth.app.test.Ping;
@@ -114,7 +113,7 @@ public class AppComp extends ComponentDefinition {
         //trigger(new RB_Broadcast(message), rb);
         // trigger(new RB_Broadcast(new Ping()), rb);
 
-        trigger(new CB_Broadcast(), cb);
+        trigger(new CB_Broadcast(new Ping()), cb);
 
       }
 
