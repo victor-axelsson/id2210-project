@@ -20,10 +20,10 @@ package se.kth.app;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import se.kth.app.broadcast.BEB.BEB_Broadcast;
 import se.kth.app.broadcast.BEB.BEB_Deliver;
 import se.kth.app.broadcast.BEB.BestEffortBroadcast;
 import se.kth.app.broadcast.GBEB.GBEB_Broadcast;
+import se.kth.app.broadcast.GBEB.GBEB_Deliver;
 import se.kth.app.broadcast.GBEB.GossipingBestEffortBroadcast;
 import se.kth.croupier.util.CroupierHelper;
 import se.kth.app.test.Ping;
@@ -72,6 +72,7 @@ public class AppComp extends ComponentDefinition {
     subscribe(handlePing, networkPort);
     subscribe(handlePong, networkPort);
     subscribe(beb_deliverHandler, beb);
+    subscribe(gbeb_deliverHandler, gbeb);
   }
 
   Handler handleStart = new Handler<Start>() {
@@ -103,9 +104,17 @@ public class AppComp extends ComponentDefinition {
       }
 
       if(sample.size() > 3){
-        trigger(new GBEB_Broadcast(), gbeb);
+        //trigger(new GBEB_Broadcast(m), gbeb);
+        trigger(new GBEB_Broadcast(new Ping()), gbeb);
       }
 
+    }
+  };
+
+  Handler<GBEB_Deliver> gbeb_deliverHandler = new Handler<GBEB_Deliver>() {
+    @Override
+    public void handle(GBEB_Deliver gbeb_deliver) {
+      System.out.println("I got some deliver: " + selfAdr);
     }
   };
 
