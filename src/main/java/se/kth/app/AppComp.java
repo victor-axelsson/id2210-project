@@ -22,9 +22,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import se.kth.app.broadcast.BEB.BEB_Deliver;
 import se.kth.app.broadcast.BEB.BestEffortBroadcast;
-import se.kth.app.broadcast.GBEB.GBEB_Broadcast;
 import se.kth.app.broadcast.GBEB.GBEB_Deliver;
 import se.kth.app.broadcast.GBEB.GossipingBestEffortBroadcast;
+import se.kth.app.broadcast.RB.RB_Broadcast;
+import se.kth.app.broadcast.RB.ReliableBroadcast;
 import se.kth.croupier.util.CroupierHelper;
 import se.kth.app.test.Ping;
 import se.kth.app.test.Pong;
@@ -59,6 +60,7 @@ public class AppComp extends ComponentDefinition {
   Positive<CroupierPort> croupierPort = requires(CroupierPort.class);
   Positive<BestEffortBroadcast> beb = requires(BestEffortBroadcast.class);
   Positive<GossipingBestEffortBroadcast> gbeb = requires(GossipingBestEffortBroadcast.class);
+  Positive<ReliableBroadcast> rb = requires(ReliableBroadcast.class);
   //**************************************************************************
   private KAddress selfAdr;
 
@@ -105,7 +107,10 @@ public class AppComp extends ComponentDefinition {
 
       if(sample.size() > 3){
         //trigger(new GBEB_Broadcast(m), gbeb);
-        trigger(new GBEB_Broadcast(new Ping()), gbeb);
+        //trigger(new GBEB_Broadcast(new Ping()), gbeb);
+        //trigger(new RB_Broadcast(message), rb);
+
+        trigger(new RB_Broadcast(new Ping()), rb);
       }
 
     }
@@ -114,7 +119,7 @@ public class AppComp extends ComponentDefinition {
   Handler<GBEB_Deliver> gbeb_deliverHandler = new Handler<GBEB_Deliver>() {
     @Override
     public void handle(GBEB_Deliver gbeb_deliver) {
-      System.out.println("I got some deliver: " + selfAdr);
+      //System.out.println("I got some deliver: " + selfAdr);
     }
   };
 

@@ -52,7 +52,6 @@ public class GossipingBEBComponent extends ComponentDefinition {
                 return;
             }
             List<KAddress> sample = CroupierHelper.getSample(croupierSample);
-            System.out.println("Got a sample");
 
             for(KAddress p : sample){
                 trigger(new PL_Send(selfAdr, p, new GBEB_HistoryRequest()), pLink);
@@ -63,8 +62,6 @@ public class GossipingBEBComponent extends ComponentDefinition {
     protected final Handler<GBEB_Broadcast> gbeb_broadcastHandler = new Handler<GBEB_Broadcast>() {
         @Override
         public void handle(GBEB_Broadcast gbeb_broadcast) {
-            System.out.println("gbeb_broadcastHandler");
-
             past.add(new HistoryElement(selfAdr, gbeb_broadcast.m));
         }
     };
@@ -73,8 +70,6 @@ public class GossipingBEBComponent extends ComponentDefinition {
     protected final ClassMatchedHandler<GBEB_HistoryRequest, PL_Deliver> pl_deliverGBEB_historyRequestClassMatchedHandler = new ClassMatchedHandler<GBEB_HistoryRequest, PL_Deliver>() {
         @Override
         public void handle(GBEB_HistoryRequest gbeb_historyRequest, PL_Deliver pl_deliver) {
-            System.out.println("pl_deliverGBEB_historyRequestClassMatchedHandler");
-
             trigger(new PL_Send(selfAdr, pl_deliver.src, new GBEB_HistoryResponse(copyList(past))), pLink);
 
         }
@@ -84,7 +79,6 @@ public class GossipingBEBComponent extends ComponentDefinition {
     protected final ClassMatchedHandler<GBEB_HistoryResponse, PL_Deliver>  gbeb_historyResponsePL_deliverClassMatchedHandler = new ClassMatchedHandler<GBEB_HistoryResponse, PL_Deliver>() {
         @Override
         public void handle(GBEB_HistoryResponse gbeb_historyResponse, PL_Deliver pl_deliver) {
-            System.out.println("gbeb_historyResponsePL_deliverClassMatchedHandler");
 
             List<HistoryElement> unseen = new ArrayList<>();
             for (HistoryElement element : gbeb_historyResponse.getHistory()) {
