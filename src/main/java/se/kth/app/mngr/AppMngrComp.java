@@ -106,6 +106,7 @@ public class AppMngrComp extends ComponentDefinition {
     public void handle(OMngrCroupier.ConnectResponse event) {
       LOG.info("{}overlays connected", logPrefix);
       connectAppComp();
+      connectBroadcasts();
       trigger(Start.event, appComp.control());
       trigger(new OverlayViewUpdate.Indication<>(croupierId, false, new NoView()), extPorts.viewUpdatePort);
     }
@@ -116,19 +117,17 @@ public class AppMngrComp extends ComponentDefinition {
     connect(appComp.getNegative(Timer.class), extPorts.timerPort, Channel.TWO_WAY);
     connect(appComp.getNegative(Network.class), extPorts.networkPort, Channel.TWO_WAY);
     connect(appComp.getNegative(CroupierPort.class), extPorts.croupierPort, Channel.TWO_WAY);
+  }
 
-
-    //COnnect beb
-    connect(beb.getPositive(BestEffortBroadcast.class), appComp.getNegative(BestEffortBroadcast.class), Channel.TWO_WAY);
+  private void connectBroadcasts(){
+    //Connect beb
     connect(beb.getNegative(PerfectLink.class), pLink.getPositive(PerfectLink.class), Channel.TWO_WAY);
 
     //Connect gbeb
-    connect(gbeb.getPositive(GossipingBestEffortBroadcast.class), appComp.getNegative(GossipingBestEffortBroadcast.class), Channel.TWO_WAY);
     connect(gbeb.getNegative(PerfectLink.class), pLink.getPositive(PerfectLink.class), Channel.TWO_WAY);
     connect(gbeb.getNegative(CroupierPort.class), extPorts.croupierPort, Channel.TWO_WAY);
 
     //Reliable broadcast
-    connect(rb.getPositive(ReliableBroadcast.class), appComp.getNegative(ReliableBroadcast.class), Channel.TWO_WAY);
     connect(rb.getNegative(GossipingBestEffortBroadcast.class), gbeb.getPositive(GossipingBestEffortBroadcast.class), Channel.TWO_WAY);
 
     //Causal broadcast

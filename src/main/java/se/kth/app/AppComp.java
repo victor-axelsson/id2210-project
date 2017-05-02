@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import se.kth.app.broadcast.BEB.BEB_Deliver;
 import se.kth.app.broadcast.BEB.BestEffortBroadcast;
 import se.kth.app.broadcast.CB.CB_Broadcast;
+import se.kth.app.broadcast.CB.CB_Deliver;
 import se.kth.app.broadcast.CB.CausalOrderReliableBroadcast;
 import se.kth.app.broadcast.GBEB.GBEB_Deliver;
 import se.kth.app.broadcast.GBEB.GossipingBestEffortBroadcast;
@@ -59,9 +60,6 @@ public class AppComp extends ComponentDefinition {
   Positive<Timer> timerPort = requires(Timer.class);
   Positive<Network> networkPort = requires(Network.class);
   Positive<CroupierPort> croupierPort = requires(CroupierPort.class);
-  Positive<BestEffortBroadcast> beb = requires(BestEffortBroadcast.class);
-  Positive<GossipingBestEffortBroadcast> gbeb = requires(GossipingBestEffortBroadcast.class);
-  Positive<ReliableBroadcast> rb = requires(ReliableBroadcast.class);
   Positive<CausalOrderReliableBroadcast> cb = requires(CausalOrderReliableBroadcast.class);
   //**************************************************************************
   private KAddress selfAdr;
@@ -75,22 +73,13 @@ public class AppComp extends ComponentDefinition {
     subscribe(handleCroupierSample, croupierPort);
     subscribe(handlePing, networkPort);
     subscribe(handlePong, networkPort);
-    subscribe(beb_deliverHandler, beb);
-    subscribe(gbeb_deliverHandler, gbeb);
+    subscribe(cb_deliverHandler, cb);
   }
 
   Handler handleStart = new Handler<Start>() {
     @Override
     public void handle(Start event) {
       LOG.info("{}starting...", logPrefix);
-    }
-  };
-
-  Handler<BEB_Deliver> beb_deliverHandler = new Handler<BEB_Deliver>() {
-    @Override
-    public void handle(BEB_Deliver beb_deliver) {
-      //Dunno
-      System.out.println("Beb deliver in AppComp");
     }
   };
 
@@ -120,12 +109,13 @@ public class AppComp extends ComponentDefinition {
     }
   };
 
-  Handler<GBEB_Deliver> gbeb_deliverHandler = new Handler<GBEB_Deliver>() {
-    @Override
-    public void handle(GBEB_Deliver gbeb_deliver) {
-      //System.out.println("I got some deliver: " + selfAdr);
-    }
+  protected final Handler<CB_Deliver> cb_deliverHandler = new Handler<CB_Deliver>() {
+      @Override
+      public void handle(CB_Deliver cb_deliver) {
+        System.out.println("Got deliver in app comp: " + selfAdr);
+      }
   };
+
 
   ClassMatchedHandler handlePing
     = new ClassMatchedHandler<Ping, KContentMsg<?, ?, Ping>>() {
